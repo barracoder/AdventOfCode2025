@@ -1,6 +1,7 @@
 using System.IO;
 using System.Collections.Generic;
 using System.Linq;
+using System.Diagnostics;
 
 IEnumerable<string> ReadInput()
 {
@@ -54,6 +55,9 @@ int x = 10; // testing
 bool fullAnalysis = true; // Set to true for full analysis of all values
 int initialStart = 50;
 var input = fullAnalysis ? ReadInput() : ReadInput().Take(x);
+
+var stopwatch = Stopwatch.StartNew();
+
 int countZero = 0;
 int zeroClicks = 0;
 
@@ -63,5 +67,9 @@ foreach (var (row, newStart, zeroClicksinRow) in ExamineRows(initialStart, input
     if (newStart == 0) countZero++;
     zeroClicks += zeroClicksinRow;
 }
+
+stopwatch.Stop();
+
 Console.WriteLine($"Number of times newStart was 0: {countZero}");
 Console.WriteLine($"Number of times zero was clicked: {zeroClicks}");
+Console.WriteLine($"Elapsed: {stopwatch.ElapsedMilliseconds} ms");
