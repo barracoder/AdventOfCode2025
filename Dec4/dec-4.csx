@@ -6,10 +6,7 @@ using System.Diagnostics;
 
 IEnumerable<string> ReadInput()
 {
-    foreach (var line in File.ReadLines("Dec4/input.txt"))
-    {
-        yield return line;  
-    }
+    return File.ReadLines("Dec4/input.txt");
 }
 
 string[,] BuildArray(IEnumerable<string> rows)
