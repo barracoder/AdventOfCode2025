@@ -57,7 +57,7 @@ bool hasFewerThanNRollsAdjacent(string[,] array, int row, int col, int n)
            adjacentPosition(1, 0) +
            adjacentPosition(1, 1);
 
-    Console.WriteLine($"Position ({row}, {col}) has {count} adjacent rolls.");
+    // Console.WriteLine($"Position ({row}, {col}) has {count} adjacent rolls.");
     return count < n;
 }
 
@@ -71,32 +71,40 @@ void PrintArray(string[,] array)
         }
         Console.WriteLine();
     }
+    Console.WriteLine();
 }
 
 var stopwatch = Stopwatch.StartNew();
 
 var rows = ReadInput();
 var array = BuildArray(rows);
-int count = 0;
+int removed = 0;
+int totalRemoved = 0;
 
-PrintArray(array);
-for(int row = 0; row < array.GetLength(0); row++)
-{
-    for(int col = 0; col < array.GetLength(1); col++)
+do {
+    removed = 0;
+    PrintArray(array);
+    for(int row = 0; row < array.GetLength(0); row++)
     {
-        if(array[row, col] == "@")
+        for(int col = 0; col < array.GetLength(1); col++)
         {
-            bool hasAdjacentRolls = hasFewerThanNRollsAdjacent(array, row, col, 4);
-            Console.WriteLine($"{row}, {col} Has adjacent rolls: {!hasAdjacentRolls}");
-
-            if(hasAdjacentRolls)
+            if(array[row, col] == "@")
             {
-                count++;
+                bool canRemove = hasFewerThanNRollsAdjacent(array, row, col, 4);
+                // Console.WriteLine($"{row}, {col} Has adjacent rolls: {!canRemove}");
+
+                if(canRemove)
+                {
+                    array[row, col] = ".";
+                    removed++;
+                    totalRemoved++;
+                }
             }
         }
-    }
-}
+    } 
+    Console.WriteLine($"Removed: {removed}");
+} while(removed > 0);
 
 stopwatch.Stop();
-Console.WriteLine($"Count: {count}");
+Console.WriteLine($"Count: {totalRemoved}");
 Console.WriteLine($"Elapsed time: {stopwatch.ElapsedMilliseconds} ms");
