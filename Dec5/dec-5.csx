@@ -64,14 +64,46 @@ void PrintEnumerable<T>(IEnumerable<T> items)
     }
 }
 
+IEnumerable<Range> GetAllNonContiguousRanges(IEnumerable<Range> ranges)
+{
+    var sortedRanges = ranges.OrderBy(r => r.Start).ToList();
+    var mergedRanges = new List<Range>();
+
+    foreach(var range in sortedRanges)
+    {
+        if(mergedRanges.Count == 0)
+        {
+            mergedRanges.Add(range);
+            continue;
+        }
+
+        var lastRange = mergedRanges.Last();
+        if(range.Start > lastRange.End + 1)
+        {
+            mergedRanges.Add(range);
+        }
+        else
+        {
+            var newEnd = Math.Max(lastRange.End, range.End);
+            mergedRanges[mergedRanges.Count - 1] = new Range(lastRange.Start, newEnd);
+        }
+    }
+
+    return mergedRanges;
+}
+
 var stopwatch = Stopwatch.StartNew();
 
 var input = ReadInput("Dec5/input.txt");
 var (freshIds, availableIds) = SplitInputOnEmptyLine(input);
 var freshRange = BuildFreshRange(freshIds);
+var nonContiguousFreshRanges = GetAllNonContiguousRanges(freshRange);
+
 
 // PrintEnumerable<string>(freshIds);
 // PrintEnumerable<long>(freshRange);
+
+
 
 var checkedFreshIds = availableIds
     .Select(id => long.Parse(id))
@@ -81,6 +113,15 @@ var spoiltIds = availableIds.Select(id => long.Parse(id)).Except(checkedFreshIds
 
 Console.WriteLine($"Number of spoilt IDs: {spoiltIds.Count()}");
 Console.WriteLine($"Number of fresh IDs: {checkedFreshIds.Count()}");
+
+
+long totalFreshIds = 0;
+foreach(var range in nonContiguousFreshRanges)
+{
+    totalFreshIds += (range.End - range.Start + 1);
+}
+
+Console.WriteLine($"Total fresh IDs: {totalFreshIds}");
 
 
 stopwatch.Stop();
