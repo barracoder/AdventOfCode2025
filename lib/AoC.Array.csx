@@ -4,6 +4,10 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
+
+record class TreeNode<T>(T Value, TreeNode<T> Left, TreeNode<T> Right);
+    
+
 static string[,] ParseDelimitedTo2DArray(IEnumerable<string> lines, char delimiter, bool ignoreBlankColumns = true)
 {
     var lineList = lines.ToList();
@@ -85,4 +89,37 @@ static T[] GetColumn<T>(T[,] array, int columnIndex)
         result[i] = array[i, columnIndex];
     }
     return result;
+}
+int CountRootToLeafPaths<T>(TreeNode<T> root)
+{
+    if (root == null) return 0;
+    if (root.Left == null && root.Right == null) return 1;
+    return CountRootToLeafPaths(root.Left) + CountRootToLeafPaths(root.Right);
+}
+
+string PrettyPrintTreeNode<T>(TreeNode<T> root)
+{
+    if (root == null) return "null";
+    
+    var sb = new System.Text.StringBuilder();
+    TreePrintHelper(root, "", true, sb);
+    return sb.ToString();
+}
+
+void TreePrintHelper<T>(TreeNode<T> node, string prefix, bool isLeft, System.Text.StringBuilder sb)
+{
+    if (node == null)
+    {
+        sb.AppendLine($"{prefix}{(isLeft ? "├── " : "└── ")}null");
+        return;
+    }
+
+    sb.AppendLine($"{prefix}{(isLeft ? "├── " : "└── ")}{node.Value}");
+
+    var children = new[] { node.Left, node.Right };
+    for (int i = 0; i < children.Length; i++)
+    {
+        bool isLast = i == children.Length - 1;
+        TreePrintHelper(children[i], prefix + (isLeft ? "│   " : "    "), isLast, sb);
+    }
 }
