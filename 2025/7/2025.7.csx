@@ -42,44 +42,46 @@ using (new Timer("Stage 1"))
 
 using (new Timer("Stage 2"))
 {
-    var inputLines = ReadInputLines("2025/7/input.txt").ToList();
+    var gridLines = ReadInputLines("2025/7/input.txt").ToList();
 
-    var startIndex = inputLines.First().IndexOf('S');
-    var arrayWidth = inputLines.First().Length;
+    var startColumn = gridLines.First().IndexOf('S');
+    var gridWidth = gridLines.First().Length;
+    int gridHeight = gridLines.Count;
 
-    var beams = inputLines.First().ToArray();
-    int splits = 0;
-    int timelines = 1;
-    TreeNode<int> root = new TreeNode<int>(startIndex, null, null);
-    TreeNode<int> currentNode = root;
-    // build a tree
-    TreeNode<int> BuildTree(int row, int beamIndex)
+    long[][] pathsToBottom = new long[gridHeight][];
+    for (int rowIndex = 0; rowIndex < gridHeight; rowIndex++)
     {
-        if (row >= inputLines.Count)
-        {
-            return null;
-        }
+        pathsToBottom[rowIndex] = new long[gridWidth];
+    }
 
-        if (inputLines[row][beamIndex] == '^')
+    for (int col = 0; col < gridWidth; col++)
+    {
+        char currentCell = gridLines[gridHeight - 1][col];
+        pathsToBottom[gridHeight - 1][col] = (currentCell == '.' || currentCell == '^' || currentCell == 'S') ? 1 : 0;
+    }
+
+    for (int row = gridHeight - 2; row >= 0; row--)
+    {
+        for (int col = 0; col < gridWidth; col++)
         {
-            splits++;
-            LogToFile($"Split at row {row}, col {beamIndex}");
-            var leftChild = BuildTree(row + 1, beamIndex - 1);
-            var rightChild = BuildTree(row + 1, beamIndex + 1);
-            timelines += 1;
-            return new TreeNode<int>(beamIndex, leftChild, rightChild);
-        }
-        else if (inputLines[row][beamIndex] == '.')
-        {
-            return BuildTree(row + 1, beamIndex);
-        }
-        else
-        {
-            return null;
+            char currentCell = gridLines[row][col];
+            if (currentCell == '.' || currentCell == 'S')
+            {
+                pathsToBottom[row][col] = pathsToBottom[row + 1][col];
+            }
+            else if (currentCell == '^')
+            {
+                long leftPaths = (col - 1 >= 0) ? pathsToBottom[row + 1][col - 1] : 0;
+                long rightPaths = (col + 1 < gridWidth) ? pathsToBottom[row + 1][col + 1] : 0;
+                pathsToBottom[row][col] = leftPaths + rightPaths;
+            }
+            else
+            {
+                pathsToBottom[row][col] = 0;
+            }
         }
     }
-    root = new TreeNode<int>(startIndex, BuildTree(1, startIndex), null); 
-    // int timelines = CountRootToLeafPaths(root);
-    // Console.WriteLine(PrettyPrintTreeNode(root));
-    Console.WriteLine($"Total timelines: {timelines}");
+
+    long totalPaths = pathsToBottom[0][startColumn];
+    Console.WriteLine($"Total timelines: {totalPaths}");
 }
